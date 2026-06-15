@@ -1,0 +1,13 @@
+{
+  "domain": "octopus_greener_nights_memory",
+  "name": "Octopus Greener Nights Memory",
+  "version": "1.0.9",
+  "documentation": "https://github.com/sOckhamSter/octopus_greener_nights_memory_ha",
+  "issue_tracker": "https://github.com/sOckhamSter/octopus_greener_nights_memory_ha/issues",
+  "requirements": ["aiohttp"],
+  "dependencies": ["frontend", "http", "lovelace"],
+  "codeowners": ["@sOckhamSter"],
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "config_flow": true
+}
