@@ -23,6 +23,7 @@ Find out more about Octopus Greener Nights here: https://octopus.energy/smart/gr
 
 
 ## Installation with HACS
+Make sure that you have HACS installed in Home Assistant before you begin - see https://hacs.xyz for more information.
 
 1. In HACS, open the menu and choose **Custom repositories**.
 2. Add this repository URL:
@@ -31,15 +32,18 @@ Find out more about Octopus Greener Nights here: https://octopus.energy/smart/gr
 https://github.com/sOckhamSter/octopus_greener_nights_memory_ha
 ```
 
-3. Select **Integration** as the category.
-4. Install **Octopus Greener Nights Memory**.
+3. Select **Integration** as the "Type".
+4. Search for and download **Octopus Greener Nights Memory** from the list of available items in HACS.
 5. Restart Home Assistant.
 6. Add the integration from **Settings > Devices & services**.
 7. Refresh your browser cache
 	- *Safari*: option + command + R
 	- *Chrome (macOS)*: shift + command + R
 	- *Chrome (Windows)*: ctrl + shift + R
+	- *Companion App*: (in app) Settings > Companion app > Debugging > Reset frontend cache
 8. Edit your dashboard and add the card named **Octopus Greener Nights Memory Card**
+
+***Note***: After installation, all tiles on the card will show as either red or green initially. Previously green nights will only be tracked as orange once the integration has seen them disappeared. The integration has no knowledge of former greener nights before the time at which it was installed so please be patient for a few days while it learns.
 
 ## Sensors
 
