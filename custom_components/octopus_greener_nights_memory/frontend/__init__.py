@@ -19,7 +19,7 @@ _LOGGER = logging.getLogger(__name__)
 DATA_STATIC_REGISTERED = f"{DOMAIN}_static_registered"
 DATA_RESOURCE_REGISTERED = f"{DOMAIN}_resource_registered"
 DATA_EXTRA_JS_REGISTERED = f"{DOMAIN}_extra_js_registered"
-CARD_URL = "/octo_gnm_card.js?v=1.0.11"
+CARD_URL = "/octo_gnm_card.js?v=1.0.12"
 CARD_URL_BASE = "/octo_gnm_card.js"
 
 
