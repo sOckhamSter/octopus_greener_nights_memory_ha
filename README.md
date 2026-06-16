@@ -2,6 +2,8 @@
 
 A combined integration and dashboard card for Home Assistant to track and display upcoming "Greener Nights" from Octopus Energy on your Home Assistant dashboard. Because the weather changes and forecasted greener nights can disappear from the upcoming schedule, this integration will also keep track of disappearing greener nights and highlight them too. 
 
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=+sOckhamSter&repository=octopus_greener_nights_memory&category=Integration)
+
 ![A screenshot showing the dashboard card rendered in Home Assistant in two different sizes](https://raw.githubusercontent.com/sOckhamSter/octopus_greener_nights_memory_ha/refs/heads/main/screenshots/screenshot-dashboardcards.png)
 
 ## What are Octopus Energy Greener Nights?
