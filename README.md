@@ -1,26 +1,26 @@
 # Octopus Greener Nights Memory
 
-Home Assistant custom integration and Lovelace card for the Octopus Energy Greener Nights forecast.
+A combined integration and dashboard card for Home Assistant to track and display upcoming "Greener Nights" from Octopus Energy on your Home Assistant dashboard. Because the weather changes and forecasted greener nights can disappear from the upcoming schedule, this integration will also keep track of disappearing greener nights and highlight them too. 
 
-The integration fetches the Octopus Greener Nights GraphQL forecast, keeps a strict rolling 7-day window, stores only the current window with Home Assistant storage, and exposes one sensor:
+![A screenshot showing the dashboard card rendered in Home Assistant in two different sizes](https://raw.githubusercontent.com/sOckhamSter/octopus_greener_nights_memory_ha/refs/heads/main/screenshots/screenshot-dashboardcards.png)
 
-```text
-sensor.octopus_greener_nights_memory
-```
+## What are Octopus Energy Greener Nights?
+"Greener Nights" is an incentive service from Octopus Energy designed to reward you financially for charging your EV (electric vehicle) on nights when the electricity grid is cleanest. It is a bolt-on feature to their "Intelligent Octopus Go" EV-specific electricity tariff. If you manage to achieve a certain percentage of your EV charging in any given month on greener nights then you are rewarded with "Octopoints" which can be converted into account credit.
+
+Sometimes the forecast changes and upcoming greener nights disappear. Those now-missing greener nights will still count towards your monthly greener nights charging target if you plug in that day, but remembering that a day was previously green is tricky. This integration and card is designed to help you remember which nights count. It's still best to plug in on a 'green' night, but if you really need to then an 'orange' night will work too.
+
+Find out more about Octopus Greener Nights here: https://octopus.energy/smart/greener-nights
 
 ## Features
 
-- Fetches the Octopus Greener Nights forecast hourly.
-- Updates immediately on Home Assistant startup.
-- Keeps today plus the next 6 days only.
-- Stores no historical data outside the active 7-day window.
-- Exposes forecast and memory data as sensor attributes.
-- Registers the bundled Lovelace card automatically.
-- Provides a manual refresh service:
+- Fetches the Octopus Greener Nights forecast directly from the Octopus Energy API
+- Updates the forecast hourly (with a random delay)
+- Stores all Greener Nights forecast data from the API including the greenness score and index in a sensor
+- Remembers which days were previously 'green' and marks them as 'orange'
+- A customisable dashboard card with GUI configuration
+- A manual refresh service
 
-```text
-octopus_greener_nights_memory.refresh
-```
+
 
 ## Installation with HACS
 
@@ -35,34 +35,97 @@ https://github.com/sOckhamSter/octopus_greener_nights_memory_ha
 4. Install **Octopus Greener Nights Memory**.
 5. Restart Home Assistant.
 6. Add the integration from **Settings > Devices & services**.
+7. Refresh your browser cache
+	- *Safari*: option + command + R
+	- *Chrome (macOS)*: shift + command + R
+	- *Chrome (Windows)*: ctrl + shift + R
+8. Edit your dashboard and add the card named **Octopus Greener Nights Memory Card**
 
-## Lovelace Card
+## Sensors
 
-The bundled card is registered automatically:
-
-```text
-octopus-greener-nights-memory-card
-```
-
-It reads from:
-
+This integration provides you with a single sensor:
 ```text
 sensor.octopus_greener_nights_memory
 ```
 
-## State Model
+Data retrieved from the Octopus Energy API is stored within the state attributes of the sensor in the following format:
 
-The sensor state is the current green-night count.
+>     memory:
+>       "yyyy-mm-dd": red | orange | green
+>       "yyyy-mm-dd+1": red | orange | green
+>       "yyyy-mm-dd+2": red | orange | green
+>       "yyyy-mm-dd+3": red | orange | green
+>       "yyyy-mm-dd+4": red | orange | green
+>       "yyyy-mm-dd+5": red | orange | green
+>       "yyyy-mm-dd+6": red | orange | green
+>     forecast:
+>       "yyyy-mm-dd":
+>         is_greener_night: true | false
+>         greenness_score: <int>
+>         greenness_index: LOW | MEDIUM | HIGH
+>       "yyyy-mm-dd+1":
+>         is_greener_night: true | false
+>         greenness_score: <int>
+>         greenness_index: LOW | MEDIUM | HIGH
+>       "yyyy-mm-dd+2":
+>         is_greener_night: true | false
+>         greenness_score: <int>
+>         greenness_index: LOW | MEDIUM | HIGH
+>       "yyyy-mm-dd+3":
+>         is_greener_night: true | false
+>         greenness_score: <int>
+>         greenness_index: LOW | MEDIUM | HIGH
+>       "yyyy-mm-dd+4":
+>         is_greener_night: true | false
+>         greenness_score: <int>
+>         greenness_index: LOW | MEDIUM | HIGH
+>       "yyyy-mm-dd+5":
+>         is_greener_night: true | false
+>         greenness_score: <int>
+>         greenness_index: LOW | MEDIUM | HIGH
+>       "yyyy-mm-dd+6":
+>         is_greener_night: true | false
+>         greenness_score: <int>
+>         greenness_index: LOW | MEDIUM | HIGH
 
-Attributes include:
 
-- `memory`
-- `forecast`
-- `greenness_score`
-- `greenness_index`
-- `last_update`
-- `api_status`
+## Dashboard (Lovelace) Card
 
-## Version
+The bundled card is registered automatically and reads data from the provided sensor.
+It is fully customisable via the GUI, however if you wish to configure it manually via YAML then create a new custom card with the following YAML configuration:
 
-Current version: `1.0.10`
+```text
+type: custom:octopus-greener-nights-memory-card
+entity: sensor.octopus_greener_nights_memory
+title: Octopus Greener Nights
+title_mode: large
+tile_height: 56
+today_font_size: 14
+date_font_size: 14
+color_green: "#5d9e52"
+color_orange: "#f2aa3c"
+color_red: "#ca5040"
+```
+
+### Card options
+
+| Name | Type | Default | Description |
+|--|--|--|--|
+| type | string | required | `custom:octopus-greener-nights-memory-card` |
+| entity | object | required | `sensor.octopus_greener_nights_memory` unless you've changed it |
+| title | string |   | A text string title for your card |
+| title_mode | string | large | `large | compact | none` |
+| tile_height | number | 56 | The height in pixels of the rows of tiles on the card |
+| today_font_size | number | 14 | The size of the font on the 'today' tile |
+| date_font_size | number | 14 | The size of the font on the upcoming days tiles |
+| color_green | string | "#5d9e52" | The hex colour of the tile background for a 'green' night |
+| color_orange | string | "#f2aa3c" | The hex colour of the tile background for a night than was but is now no longer 'green' |
+| color_red | string | "#ca5040" | The hex colour of the tile background for a night that has never been 'green' |
+
+## Manual Update
+
+The integration provides an action which performs a manual refresh of the data from the Octopus API. This should not be used as part of an automation in order to ensure the integration imposes minimal impact on Octopus Energy's cloud services. It is provided for troubleshooting purposes only and under normal operation the integration will automatically poll the API for updates.
+```text
+octopus_greener_nights_memory.refresh
+```
+
