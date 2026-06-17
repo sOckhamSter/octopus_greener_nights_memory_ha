@@ -2,6 +2,7 @@ refresh:
   name: Refresh data
   description: Manually refresh Octopus Greener Nights data immediately
 
-randomize_memory:
-  name: Randomize memory
-  description: Test action that assigns a random red, green, or orange value to each of the next 7 memory days.
+# Test-only randomizer kept for future troubleshooting.
+# randomize_memory:
+#   name: Randomize memory
+#   description: Test action that assigns a random red, green, or orange value to each of the next 7 memory days.
