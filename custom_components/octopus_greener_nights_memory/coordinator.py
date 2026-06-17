@@ -94,10 +94,10 @@ class OctopusGreenerCoordinator(DataUpdateCoordinator):
                     new_memory[d] = "green"
                     green_count += 1
 
-            # convert previously-green → orange if it disappeared
+            # Preserve green history when a day is no longer greener.
             for d, state in old_memory.items():
                 if d in new_memory:
-                    if state == "green" and new_memory[d] != "green":
+                    if state in ("green", "orange") and new_memory[d] != "green":
                         new_memory[d] = "orange"
 
             data = {
