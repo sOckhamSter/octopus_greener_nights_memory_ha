@@ -2,6 +2,7 @@ class OctopusGreenerNightsMemoryCard extends HTMLElement {
     constructor() {
         super();
         this._lastRendered = null;
+        this._refreshTimer = null;
     }
 
     setConfig(config) {
@@ -18,6 +19,30 @@ class OctopusGreenerNightsMemoryCard extends HTMLElement {
     set hass(hass) {
         this._hass = hass;
         this.update();
+    }
+
+    connectedCallback() {
+        if (this._refreshTimer) return;
+
+        this._refreshTimer = window.setInterval(
+            () => this.refreshEntity(),
+            30 * 60 * 1000
+        );
+    }
+
+    disconnectedCallback() {
+        if (!this._refreshTimer) return;
+
+        window.clearInterval(this._refreshTimer);
+        this._refreshTimer = null;
+    }
+
+    refreshEntity() {
+        if (!this._hass || !this.config?.entity) return;
+
+        this._hass.callService("homeassistant", "update_entity", {
+            entity_id: this.config.entity
+        });
     }
 
     colour(v) {
@@ -164,7 +189,7 @@ class OctopusGreenerNightsMemoryCard extends HTMLElement {
                 {
                     name: "entity",
                     required: true,
-                    selector: { entity: { domain: "input_text" } }
+                    selector: { entity: { domain: "sensor" } }
                 },
 
                 {
