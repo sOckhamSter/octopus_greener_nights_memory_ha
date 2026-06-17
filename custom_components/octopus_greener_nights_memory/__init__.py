@@ -28,6 +28,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_setup(hass, config):
+    async def set_memory(coordinator, memory):
+        green_count = sum(1 for colour in memory.values() if colour == "green")
+
+        data = {
+            **(coordinator.data or {}),
+            "memory": memory,
+            "green_count": green_count,
+        }
+
+        await coordinator.store.async_save(data)
+        coordinator.async_set_updated_data(data)
+
     async def handle_refresh(call):
         for coordinator in hass.data.get(DOMAIN, {}).values():
             await coordinator.async_request_refresh()
@@ -40,16 +52,16 @@ async def async_setup(hass, config):
                 (today + timedelta(days=i)).isoformat(): random.choice(colours)
                 for i in range(7)
             }
-            green_count = sum(1 for colour in memory.values() if colour == "green")
+            await set_memory(coordinator, memory)
 
-            data = {
-                **(coordinator.data or {}),
-                "memory": memory,
-                "green_count": green_count,
+    async def handle_reset_memory(call):
+        for coordinator in hass.data.get(DOMAIN, {}).values():
+            today = date.today()
+            memory = {
+                (today + timedelta(days=i)).isoformat(): "red"
+                for i in range(7)
             }
-
-            await coordinator.store.async_save(data)
-            coordinator.async_set_updated_data(data)
+            await set_memory(coordinator, memory)
 
     hass.services.async_register(
         DOMAIN,
@@ -60,6 +72,11 @@ async def async_setup(hass, config):
         DOMAIN,
         "randomize_memory",
         handle_randomize_memory,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "reset_memory",
+        handle_reset_memory,
     )
 
     return True
