@@ -1,4 +1,4 @@
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 
@@ -8,9 +8,9 @@ async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities([OctopusGreenerSensor(coordinator)])
 
 
-class OctopusGreenerSensor(Entity):
+class OctopusGreenerSensor(CoordinatorEntity):
     def __init__(self, coordinator):
-        self.coordinator = coordinator
+        super().__init__(coordinator)
 
     @property
     def name(self):

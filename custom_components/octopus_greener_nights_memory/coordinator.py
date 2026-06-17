@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, date
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -16,22 +17,38 @@ class OctopusGreenerCoordinator(DataUpdateCoordinator):
     def __init__(self, hass: HomeAssistant):
         self.hass = hass
         self.store = Store(hass, STORE_VERSION, STORE_KEY)
-        self._has_completed_first_refresh = False
+        self._unsub_periodic_refresh = None
 
         super().__init__(
             hass,
             logger=logging.getLogger(__name__),
             name="octopus_greener_nights_memory",
-            update_interval=timedelta(hours=1),
+            update_interval=None,
         )
 
-    async def _async_update_data(self):
-        if self._has_completed_first_refresh:
-            # Stagger scheduled refreshes to avoid synchronized hourly API bursts.
-            await asyncio.sleep(random.randint(0, 300))
-        else:
-            self._has_completed_first_refresh = True
+    def async_start_periodic_refresh(self):
+        if self._unsub_periodic_refresh is not None:
+            return
 
+        self._unsub_periodic_refresh = async_track_time_interval(
+            self.hass,
+            self._async_periodic_refresh,
+            timedelta(hours=1),
+        )
+
+    def async_stop_periodic_refresh(self):
+        if self._unsub_periodic_refresh is None:
+            return
+
+        self._unsub_periodic_refresh()
+        self._unsub_periodic_refresh = None
+
+    async def _async_periodic_refresh(self, now):
+        # Stagger scheduled refreshes to avoid synchronized hourly API bursts.
+        await asyncio.sleep(random.randint(0, 300))
+        await self.async_request_refresh()
+
+    async def _async_update_data(self):
         try:
             session = async_get_clientsession(self.hass)
 
