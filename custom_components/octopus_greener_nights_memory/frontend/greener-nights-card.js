@@ -55,6 +55,16 @@ class OctopusGreenerNightsMemoryCard extends HTMLElement {
         return v === "green" ? green : v === "orange" ? orange : red;
     }
 
+    textColour(v) {
+        const c = this.config || {};
+
+        const green = c.text_color_green || "#ffffff";
+        const orange = c.text_color_orange || "#ffffff";
+        const red = c.text_color_red || "#ffffff";
+
+        return v === "green" ? green : v === "orange" ? orange : red;
+    }
+
     shouldRender(next) {
         if (!this._lastRendered) return true;
         return this._lastRendered !== next;
@@ -110,7 +120,6 @@ class OctopusGreenerNightsMemoryCard extends HTMLElement {
         flex-direction:column;
         justify-content:center;
         text-align:center;
-        color:#fff;
         border-radius:12px;
         line-height:1.2;
         `;
@@ -126,6 +135,7 @@ class OctopusGreenerNightsMemoryCard extends HTMLElement {
 
         <div style="
         background:${this.colour(days[0].state)};
+        color:${this.textColour(days[0].state)};
         ${cellBase}
         font-weight:700;
         font-size:${todayFont}px;
@@ -141,6 +151,7 @@ class OctopusGreenerNightsMemoryCard extends HTMLElement {
         ${days.slice(1).map(d => `
             <div style="
             background:${this.colour(d.state)};
+            color:${this.textColour(d.state)};
             ${cellBase}
             font-size:${dateFont}px;
             ">
@@ -164,7 +175,10 @@ class OctopusGreenerNightsMemoryCard extends HTMLElement {
             date_font_size: 14,
             color_green: "#5d9e52",
             color_orange: "#f2aa3c",
-            color_red: "#ca5040"
+            color_red: "#ca5040",
+            text_color_green: "#ffffff",
+            text_color_orange: "#ffffff",
+            text_color_red: "#ffffff"
         };
     }
 
@@ -226,6 +240,21 @@ class OctopusGreenerNightsMemoryCard extends HTMLElement {
                 {
                     name: "color_red",
                     label: "Colour: Never a Greener Night",
+                    selector: { text: {} }
+                },
+                {
+                    name: "text_color_green",
+                    label: "Text color on green tile",
+                    selector: { text: {} }
+                },
+                {
+                    name: "text_color_orange",
+                    label: "Text color on orange tile",
+                    selector: { text: {} }
+                },
+                {
+                    name: "text_color_red",
+                    label: "Text color on red tile",
                     selector: { text: {} }
                 }
             ]
