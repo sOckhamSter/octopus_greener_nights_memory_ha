@@ -5,7 +5,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .coordinator import OctopusGreenerCoordinator
-from .const import DOMAIN
+from .const import DEBUG_ACTIONS, DOMAIN
 from .frontend import async_setup_frontend
 
 PLATFORMS = ["sensor"]
@@ -68,16 +68,17 @@ async def async_setup(hass, config):
         "refresh",
         handle_refresh,
     )
-    hass.services.async_register(
-        DOMAIN,
-        "randomize_memory",
-        handle_randomize_memory,
-    )
-    hass.services.async_register(
-        DOMAIN,
-        "reset_memory",
-        handle_reset_memory,
-    )
+    if DEBUG_ACTIONS:
+        hass.services.async_register(
+            DOMAIN,
+            "randomize_memory",
+            handle_randomize_memory,
+        )
+        hass.services.async_register(
+            DOMAIN,
+            "reset_memory",
+            handle_reset_memory,
+        )
 
     return True
 
