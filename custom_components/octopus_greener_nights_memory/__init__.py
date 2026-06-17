@@ -1,3 +1,6 @@
+import random
+from datetime import date, timedelta
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
@@ -29,10 +32,34 @@ async def async_setup(hass, config):
         for coordinator in hass.data.get(DOMAIN, {}).values():
             await coordinator.async_request_refresh()
 
+    async def handle_randomize_memory(call):
+        for coordinator in hass.data.get(DOMAIN, {}).values():
+            today = date.today()
+            colours = ("red", "green", "orange")
+            memory = {
+                (today + timedelta(days=i)).isoformat(): random.choice(colours)
+                for i in range(7)
+            }
+            green_count = sum(1 for colour in memory.values() if colour == "green")
+
+            data = {
+                **(coordinator.data or {}),
+                "memory": memory,
+                "green_count": green_count,
+            }
+
+            await coordinator.store.async_save(data)
+            coordinator.async_set_updated_data(data)
+
     hass.services.async_register(
         DOMAIN,
         "refresh",
         handle_refresh,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "randomize_memory",
+        handle_randomize_memory,
     )
 
     return True
