@@ -1,5 +1,5 @@
 DOMAIN = "octopus_greener_nights_memory"
-DEBUG_ACTIONS = True
+DEBUG_ACTIONS = False
 
 STORE_KEY = f"{DOMAIN}_store"
 STORE_VERSION = 1
