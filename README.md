@@ -111,6 +111,9 @@ date_font_size: 14
 color_green: "#5d9e52"
 color_orange: "#f2aa3c"
 color_red: "#ca5040"
+text_color_green: "#ffffff"
+text_color_orange: "#ffffff"
+text_color_red: "#ffffff"
 ```
 
 ### Card options
@@ -127,6 +130,9 @@ color_red: "#ca5040"
 | color_green | string | "#5d9e52" | The hex colour of the tile background for a 'green' night |
 | color_orange | string | "#f2aa3c" | The hex colour of the tile background for a night than was but is now no longer 'green' |
 | color_red | string | "#ca5040" | The hex colour of the tile background for a night that has never been 'green' |
+| text_color_green | string | "#ffffff" | The hex colour of the text on a tile with a 'green' background |
+| text_color_orange | string | "#ffffff" | The hex colour of the text on a tile with an 'orange' background |
+| text_color_red | string | "#ffffff" | The hex colour of the text on a tile with a 'red' background |
 
 ## Manual Update
 
