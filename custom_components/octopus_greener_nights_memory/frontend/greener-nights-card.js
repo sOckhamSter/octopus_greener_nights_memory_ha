@@ -85,18 +85,14 @@ class OctopusGreenerNightsMemoryCard extends HTMLElement {
     }
 
     render(memory) {
-        const today = new Date();
-
         const tileHeight = this.config.tile_height || 56;
         const todayFont = this.config.today_font_size || 14;
         const dateFont = this.config.date_font_size || todayFont;
 
-        const days = Array.from({ length: 7 }).map((_, i) => {
-            const d = new Date(today);
-            d.setDate(today.getDate() + i);
-            const iso = d.toISOString().split("T")[0];
-            return { d, state: memory[iso] || "red" };
-        });
+        const days = Object.entries(memory).slice(0, 7).map(([iso, state]) => ({
+            d: new Date(`${iso}T00:00:00`),
+            state
+        }));
 
         const titleMode = this.config.title_mode || "large";
         const showTitle = this.config.title_mode !== "none" && this.config.title;
@@ -124,6 +120,18 @@ class OctopusGreenerNightsMemoryCard extends HTMLElement {
         line-height:1.2;
         `;
 
+        const todayTile = days[0]
+        ? `<div style="
+        background:${this.colour(days[0].state)};
+        color:${this.textColour(days[0].state)};
+        ${cellBase}
+        font-weight:700;
+        font-size:${todayFont}px;
+        margin-bottom:8px;">
+        TODAY
+        </div>`
+        : "";
+
         if (!this._root) {
             this._root = document.createElement("ha-card");
             this.appendChild(this._root);
@@ -133,15 +141,7 @@ class OctopusGreenerNightsMemoryCard extends HTMLElement {
         ${titleHtml}
         <div style="padding:${cardInnerPadding};">
 
-        <div style="
-        background:${this.colour(days[0].state)};
-        color:${this.textColour(days[0].state)};
-        ${cellBase}
-        font-weight:700;
-        font-size:${todayFont}px;
-        margin-bottom:8px;">
-        TODAY
-        </div>
+        ${todayTile}
 
         <div style="
         display:grid;

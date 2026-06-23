@@ -1,4 +1,5 @@
 import logging
+from asyncio import Lock
 from pathlib import Path
 
 from homeassistant.components import frontend
@@ -17,9 +18,11 @@ from ..const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 DATA_STATIC_REGISTERED = f"{DOMAIN}_static_registered"
+DATA_STATIC_REGISTER_LOCK = f"{DOMAIN}_static_register_lock"
 DATA_RESOURCE_REGISTERED = f"{DOMAIN}_resource_registered"
 DATA_EXTRA_JS_REGISTERED = f"{DOMAIN}_extra_js_registered"
-CARD_URL = "/octo_gnm_card.js?v=1.0.19"
+DATA_RESOURCE_RETRY_SCHEDULED = f"{DOMAIN}_resource_retry_scheduled"
+CARD_URL = "/octo_gnm_card.js?v=1.0.23"
 CARD_URL_BASE = "/octo_gnm_card.js"
 
 
@@ -84,24 +87,41 @@ async def _async_register_resource_or_fallback(hass: HomeAssistant) -> None:
 
 async def async_setup_frontend(hass: HomeAssistant):
     if not hass.data.get(DATA_STATIC_REGISTERED):
-        file_path = Path(__file__).parent / "greener-nights-card.js"
+        static_register_lock = hass.data.setdefault(DATA_STATIC_REGISTER_LOCK, Lock())
 
-        await hass.http.async_register_static_paths(
-            [
-                StaticPathConfig(
-                    CARD_URL_BASE,
-                    str(file_path),
-                    cache_headers=False,
-                )
-            ]
-        )
+        async with static_register_lock:
+            if not hass.data.get(DATA_STATIC_REGISTERED):
+                file_path = Path(__file__).parent / "greener-nights-card.js"
 
-        hass.data[DATA_STATIC_REGISTERED] = True
+                try:
+                    await hass.http.async_register_static_paths(
+                        [
+                            StaticPathConfig(
+                                CARD_URL_BASE,
+                                str(file_path),
+                                cache_headers=False,
+                            )
+                        ]
+                    )
+                except RuntimeError as err:
+                    message = str(err)
+                    if (
+                        "already registered" not in message
+                        and "will never be executed" not in message
+                    ):
+                        raise
+                    _LOGGER.debug("Static path %s is already registered", CARD_URL_BASE)
+
+                hass.data[DATA_STATIC_REGISTERED] = True
 
     await _async_register_resource_or_fallback(hass)
+
+    if hass.data.get(DATA_RESOURCE_RETRY_SCHEDULED):
+        return
 
     @callback
     def _retry_lovelace_resource(_now):
         hass.async_create_task(_async_register_resource_or_fallback(hass))
 
     async_call_later(hass, 30, _retry_lovelace_resource)
+    hass.data[DATA_RESOURCE_RETRY_SCHEDULED] = True
